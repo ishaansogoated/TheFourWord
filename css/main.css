@@ -1,24 +1,21 @@
-/* Custom theme parameters */
 :root {
-  --bg: #FFFFFF;
-  --text: #111111;
-  --border: #111111;
-  --surface: #F4F4F4;
-  --primary: #000000;
-  --success: #00875A;
-  --error: #DE350B;
+  --color-present: #787c7e;    /* Wordle Gray */
+  --color-correct: #6aaa64;    /* Wordle Green */
+  --color-border: #d3d6da;     /* Wordle Light Border */
+  --color-border-focus: #565758;
+  --bg: #ffffff;
+  --text: #1a1a1a;
 }
 
-/* Base structural resets */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  border-radius: 0 !important; /* Forces 100% sharp corners across everything */
+  border-radius: 0 !important; /* Sharp corners across the board */
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   display: flex;
@@ -29,33 +26,67 @@ body {
 
 header {
   width: 100%;
-  max-width: 400px;
-  border-bottom: 2px solid var(--border);
+  max-width: 450px;
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   text-align: center;
 }
 
 header h1 {
-  font-size: 1.75rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
-/* Hard-edged layout grid */
+/* Container for the seed word tile selection bank */
+.seed-bank {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 2rem;
+  padding: 10px;
+  border: 2px dashed var(--color-present);
+  background: #f8f9fa;
+  min-height: 70px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 350px;
+}
+
+.draggable-letter {
+  width: 50px;
+  height: 50px;
+  border: 2px solid var(--text);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+}
+
+.draggable-letter:active {
+  cursor: grabbing;
+}
+
+/* The Frame Layout Engine Grid */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  max-width: 320px;
-  margin-bottom: 2rem;
+  max-width: 330px;
+  margin-bottom: 2.5rem;
 }
 
 .cell {
   aspect-ratio: 1;
-  border: 2px solid var(--border);
-  font-size: 1.5rem;
+  border: 2px solid var(--color-border);
+  font-size: 2rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -67,24 +98,30 @@ header h1 {
 }
 
 .cell:focus {
-  background-color: var(--surface);
-  border-color: var(--primary);
+  border-color: var(--color-border-focus);
 }
 
-/* Flat actionable buttons */
+/* Hidden elements for the missing center 2x2 */
+.cell.invisible-space {
+  border: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+/* Wordle Action Buttons */
 button {
-  background: var(--primary);
-  color: var(--bg);
-  border: 2px solid var(--border);
-  padding: 0.75rem 1.5rem;
+  background: #565758;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  transition: background 0.1s;
+  transition: background 0.15s ease;
 }
 
 button:hover {
-  background: var(--surface);
-  color: var(--text);
+  background: #1a1a1a;
 }
