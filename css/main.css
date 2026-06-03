@@ -1,0 +1,90 @@
+/* Custom theme parameters */
+:root {
+  --bg: #FFFFFF;
+  --text: #111111;
+  --border: #111111;
+  --surface: #F4F4F4;
+  --primary: #000000;
+  --success: #00875A;
+  --error: #DE350B;
+}
+
+/* Base structural resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 !important; /* Forces 100% sharp corners across everything */
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+header {
+  width: 100%;
+  max-width: 400px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+/* Hard-edged layout grid */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 2rem;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border: 2px solid var(--border);
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  background: transparent;
+  outline: none;
+  text-align: center;
+}
+
+.cell:focus {
+  background-color: var(--surface);
+  border-color: var(--primary);
+}
+
+/* Flat actionable buttons */
+button {
+  background: var(--primary);
+  color: var(--bg);
+  border: 2px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: background 0.1s;
+}
+
+button:hover {
+  background: var(--surface);
+  color: var(--text);
+}
