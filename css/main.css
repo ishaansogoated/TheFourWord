@@ -1,8 +1,10 @@
 :root {
-  --color-present: #787c7e;    /* Wordle Gray */
-  --color-correct: #6aaa64;    /* Wordle Green */
-  --color-border: #d3d6da;     /* Wordle Light Border */
-  --color-border-focus: #565758;
+  --color-correct: #6aaa64;    /* Premium Wordle Green */
+  --color-present: #c9b458;    /* Premium Wordle Yellow */
+  --color-absent: #787c7e;     /* Wordle Gray */
+  --color-tile-bg: #ffffff;
+  --color-border: #d3d6da;     /* Sharp, thin Wordle border */
+  --color-border-focus: #878a8c;
   --bg: #ffffff;
   --text: #1a1a1a;
 }
@@ -11,116 +13,126 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  border-radius: 0 !important; /* Sharp corners across the board */
+  border-radius: 0 !important; /* Sharp anti-AI flat edges */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: 1.5rem 1rem;
+  min-height: 100vh;
 }
 
 header {
   width: 100%;
-  max-width: 450px;
+  max-width: 330px;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 0.5rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
   text-align: center;
 }
 
 header h1 {
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
 }
 
+/* Compact Target Container for Seed Word Tiles */
 .seed-bank {
   display: flex;
-  gap: 12px;
-  margin-bottom: 2rem;
-  padding: 12px;
-  border: 2px dashed var(--color-border-focus);
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  padding: 10px;
+  border: 1px dashed var(--color-border-focus);
   background: #fdfdfd;
-  min-height: 75px;
+  min-height: 62px;
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 330px;
+  max-width: 330px; /* Locked to the exact width of the grid */
 }
 
+/* Beautiful Wordle Active Draggable Tile */
 .draggable-letter {
-  width: 50px;
-  height: 50px;
-  border: 2px solid var(--text);
-  background: var(--text);
-  color: var(--bg);
-  font-size: 1.5rem;
+  width: 46px;
+  height: 46px;
+  border: 2px solid var(--color-border-focus);
+  background: var(--color-absent);
+  color: #ffffff;
+  font-size: 1.4rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: grab;
   user-select: none;
+  text-transform: uppercase;
 }
 
 .draggable-letter:active {
   cursor: grabbing;
 }
 
-/* The Frame Layout Engine Grid */
+/* Fixed, Clean Wordle Grid Size Constraints */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  max-width: 330px;
-  margin-bottom: 2.5rem;
+  max-width: 210px; /* Completely shrinks the grid from being huge */
+  margin: 0 auto 2rem auto;
 }
 
+/* The Grid Squares - Formatted exactly like Wordle's inputs */
 .cell {
-  aspect-ratio: 1;
+  width: 48px;
+  height: 48px;
   border: 2px solid var(--color-border);
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
-  background: transparent;
+  background: var(--color-tile-bg);
   outline: none;
   text-align: center;
+  caret-color: transparent; /* Hides native flashing text cursor for crisp look */
 }
 
 .cell:focus {
   border-color: var(--color-border-focus);
 }
 
-/* Hidden elements for the missing center 2x2 */
+/* Hidden elements for the hollow center space */
 .cell.invisible-space {
   border: none;
   background: transparent;
   pointer-events: none;
+  width: 48px;
+  height: 48px;
 }
 
-/* Wordle Action Buttons */
+/* Sharp Wordle Action Bar Buttons */
 button {
-  background: #565758;
+  background: var(--color-border-focus);
   color: #ffffff;
   border: none;
-  padding: 12px 24px;
-  font-size: 1rem;
+  padding: 10px 20px;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  transition: background 0.15s ease;
+  transition: background 0.1s ease;
 }
 
 button:hover {
-  background: #1a1a1a;
+  background: var(--text);
 }
