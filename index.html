@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE FOURWORD — Daily Puzzle</title>
+    <title>THE FOURWORD</title>
     <link rel="stylesheet" href="./css/main.css">
 </head>
 <body>
 
     <header>
-        <h1>THE FOURWORD</h1>
+        <h1 id="game-title">THE FOURWORD</h1>
     </header>
+
+    <div class="seed-bank" id="seed-bank">
+        </div>
 
     <main>
         <div class="grid-container" id="game-grid">
@@ -18,14 +21,17 @@
             <input class="cell" maxlength="1" data-row="0" data-col="1">
             <input class="cell" maxlength="1" data-row="0" data-col="2">
             <input class="cell" maxlength="1" data-row="0" data-col="3">
+
             <input class="cell" maxlength="1" data-row="1" data-col="0">
-            <input class="cell" maxlength="1" data-row="1" data-col="1">
-            <input class="cell" maxlength="1" data-row="1" data-col="2">
+            <div class="cell invisible-space"></div>
+            <div class="cell invisible-space"></div>
             <input class="cell" maxlength="1" data-row="1" data-col="3">
+
             <input class="cell" maxlength="1" data-row="2" data-col="0">
-            <input class="cell" maxlength="1" data-row="2" data-col="1">
-            <input class="cell" maxlength="1" data-row="2" data-col="2">
+            <div class="cell invisible-space"></div>
+            <div class="cell invisible-space"></div>
             <input class="cell" maxlength="1" data-row="2" data-col="3">
+
             <input class="cell" maxlength="1" data-row="3" data-col="0">
             <input class="cell" maxlength="1" data-row="3" data-col="1">
             <input class="cell" maxlength="1" data-row="3" data-col="2">
@@ -33,7 +39,7 @@
         </div>
 
         <div style="text-align: center;">
-            <button id="submit-btn">SUBMIT BOARD</button>
+            <button id="submit-btn">ENTER</button>
         </div>
     </main>
 
