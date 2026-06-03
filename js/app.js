@@ -234,7 +234,7 @@ function validateHollowFrame() {
   let col3Word = board[0][3] + board[1][3] + board[2][3] + board[3][3];
 
   const targetWords = [row0Word, row3Word, col0Word, col3Word];
-  const unrecognized = targetWords.filter(w => !dictionary.includes(w));
+  const unrecognized = targetWords.filter(w => !dictionary.includes(w.toLowerCase()));
 
   if (unrecognized.length === 0) {
     triggerWinAnimation(cells);
