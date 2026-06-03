@@ -2,10 +2,11 @@ import { CONFIG } from './config.js';
 
 let dictionary = [];
 let todayPuzzle = null;
+let selectedTileElement = null; // Tracks the currently active/clicked seed letter
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadGameData();
-  initializeDragAndDrop();
+  setupMobileFriendlySelectors();
   setupEventListeners();
 });
 
@@ -14,7 +15,7 @@ async function loadGameData() {
     const dictResponse = await fetch(CONFIG.dictionaryPath);
     dictionary = await dictResponse.json();
 
-    if (CONFIG.googleSheetCsvUrl) {
+    if (CONFIG.googleSheetCsvUrl && CONFIG.googleSheetCsvUrl !== "") {
       const sheetResponse = await fetch(CONFIG.googleSheetCsvUrl);
       const csvText = await sheetResponse.text();
       const rows = csvText.split('\n').map(row => row.split(','));
@@ -45,7 +46,7 @@ async function loadGameData() {
   }
 }
 
-// Render draggable letters into the top tray
+// Renders the selection bank tiles cleanly at the top tray
 function renderSeedBank(word) {
   const bank = document.getElementById('seed-bank');
   bank.innerHTML = '';
@@ -53,34 +54,49 @@ function renderSeedBank(word) {
   word.split('').forEach((letter, index) => {
     const tile = document.createElement('div');
     tile.classList.add('draggable-letter');
-    tile.setAttribute('draggable', 'true');
     tile.setAttribute('id', `seed-letter-${index}`);
     tile.innerText = letter;
     
-    tile.addEventListener('dragstart', (e) => {
-      e.dataTransfer.setData('text/plain', e.target.id);
+    // Tap / Click Selection Logic (100% Mobile Safe)
+    tile.addEventListener('click', () => {
+      // If clicking the already selected tile, deselect it
+      if (selectedTileElement === tile) {
+        tile.style.backgroundColor = 'var(--text)';
+        tile.style.color = 'var(--bg)';
+        selectedTileElement = null;
+      } else {
+        // Clear previous selection styling
+        if (selectedTileElement) {
+          selectedTileElement.style.backgroundColor = 'var(--text)';
+          selectedTileElement.style.color = 'var(--bg)';
+        }
+        selectedTileElement = tile;
+        tile.style.backgroundColor = 'var(--color-correct)'; // Highlight green when selected
+        tile.style.color = '#ffffff';
+      }
     });
     
     bank.appendChild(tile);
   });
 }
 
-// Wire up the target cells to receive the items safely
-function initializeDragAndDrop() {
+// Binds selection clicks straight to destination grid cells
+function setupMobileFriendlySelectors() {
   const activeCells = document.querySelectorAll('.cell:not(.invisible-space)');
   
   activeCells.forEach(cell => {
-    cell.addEventListener('dragover', (e) => {
-      e.preventDefault(); // Required to allow landing drops
-    });
-
-    cell.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const id = e.dataTransfer.getData('text/plain');
-      const draggedElement = document.getElementById(id);
-      if (draggedElement) {
-        cell.value = draggedElement.innerText;
+    cell.addEventListener('click', () => {
+      if (selectedTileElement) {
+        cell.value = selectedTileElement.innerText;
+        
+        // Return tile back to standard configuration state post-placement
+        selectedTileElement.style.backgroundColor = 'var(--text)';
+        selectedTileElement.style.color = 'var(--bg)';
+        selectedTileElement = null;
+        
         cell.focus();
+        // Fire custom native input event to handle focus-forward propagation
+        cell.dispatchEvent(new Event('input'));
       }
     });
   });
@@ -93,6 +109,7 @@ function setupEventListeners() {
   cells.forEach((cell, idx) => {
     cell.addEventListener('input', (e) => {
       e.target.value = e.target.value.toUpperCase();
+      // Auto-focus next cell down the layout line if filled
       if (e.target.value.length === 1 && idx < cells.length - 1) {
         cells[idx + 1].focus();
       }
@@ -111,12 +128,11 @@ function setupEventListeners() {
 function validateHollowFrame() {
   const cells = document.querySelectorAll('.cell:not(.invisible-space)');
   
-  // Set up an empty structural tracking map
   let board = {
-    0: ["","","",""], // Row 0
-    1: ["","","",""], // Row 1 (Index 1 and 2 are bypassed)
-    2: ["","","",""], // Row 2 (Index 1 and 2 are bypassed)
-    3: ["","","",""]  // Row 3
+    0: ["","","",""], 
+    1: ["","","",""], 
+    2: ["","","",""], 
+    3: ["","","",""]  
   };
 
   let missingInputs = false;
@@ -134,7 +150,7 @@ function validateHollowFrame() {
     return;
   }
 
-  // Extract 4 crossing frame words
+  // Exact 4-word frame mapping evaluation
   let row0Word = board[0].join("");
   let row3Word = board[3].join("");
   let col0Word = board[0][0] + board[1][0] + board[2][0] + board[3][0];
@@ -144,8 +160,8 @@ function validateHollowFrame() {
   const unrecognized = targetWords.filter(w => !dictionary.includes(w));
 
   if (unrecognized.length === 0) {
-    alert("CORRECT! GRID FRAME SOLVED SUCCESSFULLY.");
+    alert("🎉 YOU WIN! ALL WORD LINKS ARE PERFECTLY VALID.");
   } else {
-    alert(`TRY AGAIN. Unrecognized segments found: ${unrecognized.join(", ")}`);
+    alert(`NOT QUITE. The following combinations are not real words: ${unrecognized.join(", ")}`);
   }
 }
