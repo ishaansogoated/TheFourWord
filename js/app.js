@@ -1,4 +1,3 @@
-import { CONFIG } from './config.js';
 
 let dictionary = [];
 let todayPuzzle = null;
