@@ -12,11 +12,58 @@ let seedState = [
   { id: 3, letter: '', used: false, gridRow: null, gridCol: null }
 ];
 
+async function loadGameData() {
+  try {
+    // 1. Load dictionary JSON
+    const dictResponse = await fetch(window.CONFIG.dictionaryPath);
+    dictionary = await dictResponse.json();
+
+    // 2. Fetch Google Sheet CSV
+    let sheetRows = [];
+    try {
+      const sheetResponse = await fetch(window.CONFIG.googleSheetCsvUrl);
+      if (sheetResponse.ok) {
+        const csvText = await sheetResponse.text();
+        const lines = csvText.split('\n').filter(line => line.trim() !== '');
+        // Parse CSV rows assuming format: Date, Word
+        sheetRows = lines.slice(1).map(line => {
+          const parts = line.split(',').map(p => p.replace(/"/g, '').trim());
+          return { date: parts[0], word: parts[1] };
+        });
+      }
+    } catch (sheetErr) {
+      console.warn("Could not load Google Sheet, falling back to default config.", sheetErr);
+    }
+
+    // 3. Determine target word
+    const targetWord = await getTargetWord(sheetRows);
+
+    // 4. Populate seedState with target letters
+    const letters = targetWord.split('');
+    seedState.forEach((seed, idx) => {
+      seed.letter = letters[idx] || '';
+      seed.used = false;
+      seed.gridRow = null;
+      seed.gridCol = null;
+    });
+
+    todayPuzzle = {
+      puzzleNumber: window.CONFIG.fallbackPuzzle.puzzleNumber,
+      seedWord: targetWord
+    };
+
+    // 5. Render tray
+    renderSeedBank();
+  } catch (err) {
+    console.error("Failed to load game data:", err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   await loadGameData();
   setupTutorial();
   initializeInteractions();
-
+  applyAuroTheme();
 });
 
 async function getTargetWord(sheetData) {
@@ -280,22 +327,25 @@ function triggerWinAnimation(cells) {
 }
 
 function applyAuroTheme() {
-  // Check if the current website URL contains 'auro'
-  if (window.location.hostname.includes('auro')) {
-    console.log("Auro domain detected: Loading Sabrina graphics");
+  const urlParams = new URLSearchParams(window.location.search);
+  const isAuro = urlParams.get('theme') === 'auro' || window.location.hostname.includes('auro');
 
-    // 1. Create Top Left Graphic
-    const img1 = document.createElement('img');
-    img1.src = 'https://share.google/9RfA0qv2629SgpVJI'; // Replace with your actual direct image URL!
-    img1.classList.add('sabrina-graphic', 'sabrina-top-left');
-    
-    // 2. Create Bottom Right Graphic
-    const img2 = document.createElement('img');
-    img2.src = 'https://share.google/9RfA0qv2629SgpVJI'; // Replace with your actual direct image URL!
-    img2.classList.add('sabrina-graphic', 'sabrina-bottom-right');
-    
-    // Drop them into the background
-    document.body.appendChild(img1);
-    document.body.appendChild(img2);
+  if (isAuro) {
+    console.log("Auro theme activated");
+    document.body.classList.add('auro-theme');
+
+    // Create floating graphics if they don't exist yet
+    if (!document.querySelector('.sabrina-graphic')) {
+      const img1 = document.createElement('img');
+      img1.src = './images/sabrina.png'; // Ensure image exists at this path
+      img1.classList.add('sabrina-graphic', 'sabrina-top-left');
+
+      const img2 = document.createElement('img');
+      img2.src = './images/sabrina.png';
+      img2.classList.add('sabrina-graphic', 'sabrina-bottom-right');
+
+      document.body.appendChild(img1);
+      document.body.appendChild(img2);
+    }
   }
 }
