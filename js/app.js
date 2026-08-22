@@ -91,7 +91,22 @@ async function getTargetWord(sheetData) {
     console.warn("Could not fetch sheet word, falling back to default calculation", err);
   }
 
-  // Fallback if sheet row doesn't exist for today
+  // 3. No sheet entry for today either -> deterministically pick a word from
+  //    the dictionary based on today's date, so every day still gets a
+  //    playable puzzle instead of always defaulting to AURO.
+  if (dictionary && dictionary.length > 0) {
+    const fourLetterWords = dictionary
+      .map(w => w.toUpperCase())
+      .filter(w => w.length === 4);
+
+    if (fourLetterWords.length > 0) {
+      const seedNumber = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+      const index = seedNumber % fourLetterWords.length;
+      return fourLetterWords[index];
+    }
+  }
+
+  // Absolute last resort if dictionary failed to load at all
   return window.CONFIG.fallbackPuzzle.seedWord;
 }
 function setupTutorial() {
@@ -270,8 +285,9 @@ async function validateHollowFrame() {
 
   const targetWords = [row0Word, row3Word, col0Word, col3Word];
 
-  // Get current target seed word
-  const currentSeedWord = (await getTargetWord()).toUpperCase();
+  // Get current target seed word (reuse today's already-resolved word instead
+  // of re-deriving it, which previously ignored the loaded sheet data)
+  const currentSeedWord = (todayPuzzle ? todayPuzzle.seedWord : await getTargetWord()).toUpperCase();
 
   // 🚫 BLOCK SEED WORD DIRECT GUESS
   if (targetWords.includes(currentSeedWord)) {
@@ -326,26 +342,43 @@ function triggerWinAnimation(cells) {
   };
 }
 
+// Decorative motifs for the auro theme. Purely CSS/SVG/emoji based —
+// no third-party photos are pulled in, so this never has a broken-image problem.
+const AURO_MOTIFS = ['💋', '🎀', '💌', '✨', '🦋', '📻', '🍒', '💗', '🪩'];
+
 function applyAuroTheme() {
   const urlParams = new URLSearchParams(window.location.search);
-  const isAuro = urlParams.get('theme') === 'auro' || window.location.hostname.includes('auro');
 
-  if (isAuro) {
-    console.log("Auro theme activated");
-    document.body.classList.add('auro-theme');
+  // STRICT gate: theme ONLY activates on the exact ?theme=auro query param.
+  // (No hostname sniffing, no other param values.)
+  const isAuro = urlParams.get('theme') === 'auro';
 
-    // Create floating graphics if they don't exist yet
-    if (!document.querySelector('.sabrina-graphic')) {
-      const img1 = document.createElement('img');
-      img1.src = './images/sabrina.png'; // Ensure image exists at this path
-      img1.classList.add('sabrina-graphic', 'sabrina-top-left');
+  if (!isAuro) return;
 
-      const img2 = document.createElement('img');
-      img2.src = './images/sabrina.png';
-      img2.classList.add('sabrina-graphic', 'sabrina-bottom-right');
+  document.body.classList.add('auro-theme');
 
-      document.body.appendChild(img1);
-      document.body.appendChild(img2);
-    }
+  const field = document.createElement('div');
+  field.classList.add('auro-float-field');
+  field.setAttribute('aria-hidden', 'true');
+
+  const COUNT = 14;
+  for (let i = 0; i < COUNT; i++) {
+    const el = document.createElement('span');
+    el.classList.add('auro-float-item');
+    el.textContent = AURO_MOTIFS[i % AURO_MOTIFS.length];
+
+    // Randomize placement, size, drift speed, and delay so it reads as a
+    // scattered Pinterest moodboard rather than a grid.
+    el.style.left = `${Math.random() * 100}%`;
+    el.style.top = `${Math.random() * 100}%`;
+    el.style.fontSize = `${1.2 + Math.random() * 1.8}rem`;
+    el.style.animationDuration = `${8 + Math.random() * 10}s`;
+    el.style.animationDelay = `${Math.random() * -12}s`;
+    el.style.setProperty('--drift-x', `${(Math.random() * 40 - 20).toFixed(0)}px`);
+    el.style.setProperty('--rot', `${(Math.random() * 30 - 15).toFixed(0)}deg`);
+
+    field.appendChild(el);
   }
+
+  document.body.appendChild(field);
 }

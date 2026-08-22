@@ -178,23 +178,118 @@ button:hover { background: var(--text); }
 }
 
 
-/* Sabrina Theme Floating Graphics (Auro only) */
-.sabrina-graphic {
+/* =========================================================
+   AURO THEME — only ever applied via ?theme=auro
+   Sabrina-Carpenter-coded palette: vintage pink/cream/espresso,
+   cursive display font, floating motif field.
+   ========================================================= */
+
+body.auro-theme {
+  --color-correct: #e8779c;
+  --color-present: #f3c5d6;
+  --color-absent: #c98a9c;
+  --color-seed: #ffd6e6;
+  --color-border: #e8b8cd;
+  --color-border-focus: #c2185b;
+  --bg: #fff0f5;
+  --text: #3d2314;
+  background: radial-gradient(circle at 20% 15%, #ffe3ee 0%, #fff0f5 45%, #fbe1ea 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+body.auro-theme::before {
+  content: "";
   position: fixed;
-  z-index: -1; 
-  pointer-events: none; /* Prevents them from blocking grid clicks */
-  opacity: 0.85; /* Makes them blend slightly into the background */
-  width: 150px; /* Adjust this size if they are too big/small */
+  inset: 0;
+  background: repeating-linear-gradient(135deg, rgba(255,255,255,0.35) 0 2px, transparent 2px 8px);
+  pointer-events: none;
+  z-index: -1;
 }
 
-.sabrina-top-left {
-  top: 20px;
-  left: 20px;
-  transform: rotate(-10deg);
+body.auro-theme header h1 {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  color: #c2185b;
+  text-shadow: 2px 2px 0 #fff0f5, 3px 3px 6px rgba(194,24,91,0.25);
 }
 
-.sabrina-bottom-right {
-  bottom: 20px;
-  right: 20px;
-  transform: rotate(15deg);
+body.auro-theme header {
+  border-bottom: 2px solid #f3a6c6;
+}
+
+body.auro-theme .cell {
+  background: #fffafd;
+  border-color: #f0aecb;
+  color: #7a2e4a;
+}
+
+body.auro-theme .cell.active-focus {
+  border-bottom: 4px solid #c2185b;
+}
+
+body.auro-theme .cell.is-seed {
+  background-color: var(--color-seed);
+  border-color: #ec93b8;
+  color: #7a2e4a;
+}
+
+body.auro-theme .draggable-letter {
+  background: #f5789e;
+  border-color: #c2185b;
+  color: #fff0f5;
+  box-shadow: 0 3px 0 #a01352;
+}
+
+body.auro-theme .draggable-letter.used {
+  opacity: 0.25;
+}
+
+body.auro-theme button {
+  background: #c2185b;
+  box-shadow: 0 4px 0 #8c0f42;
+}
+
+body.auro-theme button:hover {
+  background: #a01352;
+}
+
+body.auro-theme .modal {
+  background: #fff5f9;
+  border: 2px solid #c2185b;
+}
+
+body.auro-theme .modal h2 {
+  color: #c2185b;
+  font-style: italic;
+}
+
+body.auro-theme .overlay {
+  background: rgba(255, 240, 245, 0.9);
+}
+
+/* Floating decorative field — emoji/CSS only, no external photos */
+.auro-float-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.auro-float-item {
+  position: absolute;
+  opacity: 0.55;
+  filter: drop-shadow(0 2px 3px rgba(194,24,91,0.2));
+  animation-name: auroFloat;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  will-change: transform;
+}
+
+@keyframes auroFloat {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  50%  { transform: translate(var(--drift-x), -18px) rotate(var(--rot)); }
+  100% { transform: translate(calc(var(--drift-x) * -1), 12px) rotate(calc(var(--rot) * -1)); }
 }

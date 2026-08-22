@@ -1,6 +1,6 @@
 window.CONFIG = {
   siteName: "THE FOURWORD",
-  googleSheetCsvUrl: "https://docs.google.com/spreadsheets/d/1ScwdhjSHbBX7y3_UuR37JdeOsYqQKqU9v_gNVhnsY44P/gviz/tq?tqx=out:csv&sheet=Sheet1",
+  googleSheetCsvUrl: "https://docs.google.com/spreadsheets/d/15GJxtM9R-_KOZcAt96YqjA2UyN6LTYdCR_2vtleyfHQ/gviz/tq?tqx=out:csv&gid=0",
   dictionaryPath: './data/4-letter-words.json',
 
   theme: {
