@@ -344,7 +344,7 @@ function triggerWinAnimation(cells) {
 
 // Decorative motifs for the auro theme. Purely CSS/SVG/emoji based —
 // no third-party photos are pulled in, so this never has a broken-image problem.
-const AURO_MOTIFS = ['💋', '🎀', '💌', '✨', '🦋', '📻', '🍒', '💗', '🪩'];
+const AURO_MOTIFS = ['🎀', '💌', '✨', '🦋', '📻', '🍒', '💗', '🪩'];
 
 function applyAuroTheme() {
   const urlParams = new URLSearchParams(window.location.search);
