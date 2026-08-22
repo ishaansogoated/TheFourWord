@@ -277,3 +277,24 @@ function triggerWinAnimation(cells) {
     });
   };
 }
+
+function applyAuroTheme() {
+  // Check if the current website URL contains 'auro'
+  if (window.location.hostname.includes('auro')) {
+    console.log("Auro domain detected: Loading Sabrina graphics");
+
+    // 1. Create Top Left Graphic
+    const img1 = document.createElement('img');
+    img1.src = 'https://share.google/9RfA0qv2629SgpVJI'; // Replace with your actual direct image URL!
+    img1.classList.add('sabrina-graphic', 'sabrina-top-left');
+    
+    // 2. Create Bottom Right Graphic
+    const img2 = document.createElement('img');
+    img2.src = 'https://share.google/9RfA0qv2629SgpVJI'; // Replace with your actual direct image URL!
+    img2.classList.add('sabrina-graphic', 'sabrina-bottom-right');
+    
+    // Drop them into the background
+    document.body.appendChild(img1);
+    document.body.appendChild(img2);
+  }
+}
