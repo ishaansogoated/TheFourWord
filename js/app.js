@@ -18,46 +18,34 @@ document.addEventListener('DOMContentLoaded', async () => {
   initializeInteractions();
 });
 
-async function loadGameData() {
-  try {
-    const dictResponse = await fetch(CONFIG.dictionaryPath);
-    dictionary = await dictResponse.json();
+async function getTargetWord(sheetData) {
+  const today = new Date();
+  const dayOfMonth = today.getDate(); // Returns day of the month (1-31)
 
-    if (CONFIG.googleSheetCsvUrl) {
-      const sheetResponse = await fetch(CONFIG.googleSheetCsvUrl);
-      const csvText = await sheetResponse.text();
-      const rows = csvText.split('\n').map(row => row.split(','));
-      const puzzles = {};
-      
-      for (let i = 1; i < rows.length; i++) {
-        if (rows[i].length >= 3) {
-          const dateStr = rows[i][0].trim();
-          puzzles[dateStr] = {
-            date: dateStr,
-            puzzleNumber: rows[i][1].trim(),
-            seedWord: rows[i][2].trim().toUpperCase()
-          };
-        }
-      }
-      const todayStr = new Date().toISOString().split('T')[0];
-      todayPuzzle = puzzles[todayStr] || CONFIG.fallbackPuzzle;
-    } else {
-      todayPuzzle = CONFIG.fallbackPuzzle;
-    }
-    
-    // Initialize seed state
-    const seedLetters = todayPuzzle.seedWord.split('');
-    seedLetters.forEach((l, i) => seedState[i].letter = l);
-
-    document.getElementById('game-title').innerText = `The FourWord #${todayPuzzle.puzzleNumber}`;
-    renderSeedBank();
-  } catch (err) {
-    console.error("Pipeline breakdown:", err);
-    todayPuzzle = CONFIG.fallbackPuzzle;
-    renderSeedBank();
+  // 1. Special Rule: If today is the 5th of any month, force the word to "AURO"
+  if (dayOfMonth === 5) {
+    console.log("Special day trigger: Word set to AURO");
+    return "AURO";
   }
-}
 
+  // 2. Otherwise, autofill from Google Sheet / Array Index
+  try {
+    // If you have sheet rows loaded:
+    if (sheetData && sheetData.length > 0) {
+      const todayString = today.toISOString().split('T')[0];
+      const foundRow = sheetData.find(row => row.date === todayString);
+      
+      if (foundRow && foundRow.word) {
+        return foundRow.word.toUpperCase();
+      }
+    }
+  } catch (err) {
+    console.warn("Could not fetch sheet word, falling back to default calculation", err);
+  }
+
+  // Fallback if sheet row doesn't exist for today
+  return window.CONFIG.fallbackPuzzle.seedWord;
+}
 function setupTutorial() {
   // Show tutorial on first load (could use localStorage to hide later)
   document.getElementById('modal-overlay').classList.remove('hidden');
@@ -202,7 +190,7 @@ function initializeInteractions() {
   submitBtn.addEventListener('click', validateHollowFrame);
 }
 
-function validateHollowFrame() {
+async function validateHollowFrame() {
   const cells = document.querySelectorAll('.cell:not(.invisible-space)');
   let board = { 0: ["","","",""], 1: ["","","",""], 2: ["","","",""], 3: ["","","",""] };
   let missingInputs = false;
@@ -233,6 +221,16 @@ function validateHollowFrame() {
   let col3Word = board[0][3] + board[1][3] + board[2][3] + board[3][3];
 
   const targetWords = [row0Word, row3Word, col0Word, col3Word];
+
+  // Get current target seed word
+  const currentSeedWord = (await getTargetWord()).toUpperCase();
+
+  // 🚫 BLOCK SEED WORD DIRECT GUESS
+  if (targetWords.includes(currentSeedWord)) {
+    alert(`You cannot enter the target seed word (${currentSeedWord}) directly into the grid!`);
+    return;
+  }
+
   const unrecognized = targetWords.filter(w => !dictionary.includes(w.toLowerCase()));
 
   if (unrecognized.length === 0) {
@@ -241,28 +239,41 @@ function validateHollowFrame() {
     alert(`Not quite right! These aren't valid words: ${unrecognized.join(", ")}`);
   }
 }
-
 function triggerWinAnimation(cells) {
   // Staggered Flip cascade
   cells.forEach((cell, i) => {
     setTimeout(() => {
       cell.classList.remove('is-seed'); // Remove seed color styling
       cell.classList.add('win-flip');
-    }, i * 150); // 150ms delay per cell for the wave effect
+    }, i * 150); // 150ms delay per cell
   });
+
+  // Build dynamic share grid based on cell types
+  const getEmoji = (r, c) => {
+    const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+    if (!cell || cell.classList.contains('invisible-space')) return '⬛';
+    return cell.getAttribute('data-seed-id') !== null ? '🟨' : '🟩';
+  };
+
+  const row0 = [0,1,2,3].map(c => getEmoji(0, c)).join('');
+  const row1 = [0,1,2,3].map(c => getEmoji(1, c)).join('');
+  const row2 = [0,1,2,3].map(c => getEmoji(2, c)).join('');
+  const row3 = [0,1,2,3].map(c => getEmoji(3, c)).join('');
+
+  const shareText = `The FourWord #${todayPuzzle ? todayPuzzle.puzzleNumber : 1}\n${row0}\n${row1}\n${row2}\n${row3}`;
 
   // Wait for animation wave to finish, then show popup
   setTimeout(() => {
     document.getElementById('modal-overlay').classList.remove('hidden');
     document.getElementById('win-modal').classList.remove('hidden');
-    document.getElementById('win-stats').innerText = `Puzzle #${todayPuzzle.puzzleNumber} Solved!`;
+    document.getElementById('win-stats').innerText = `Puzzle #${todayPuzzle ? todayPuzzle.puzzleNumber : 1} Solved!`;
   }, (cells.length * 150) + 600);
 
   // Wire up share button
-  document.getElementById('share-btn').addEventListener('click', () => {
-    const shareText = `The FourWord #${todayPuzzle.puzzleNumber}\n🟩🟩🟩🟩\n🟩⬛⬛🟩\n🟩⬛⬛🟩\n🟩🟩🟩🟩`;
+  const shareBtn = document.getElementById('share-btn');
+  shareBtn.onclick = () => {
     navigator.clipboard.writeText(shareText).then(() => {
-      alert("Result copied to clipboard!");
+      alert("Result copied to clipboard");
     });
-  });
+  };
 }
