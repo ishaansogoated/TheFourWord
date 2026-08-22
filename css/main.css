@@ -1,37 +1,200 @@
 :root {
-  --bg-color: #fff0f5;         /* Soft Vintage Pink/Cream */
-  --text-color: #3d2314;       /* Deep Espresso Brown */
-  --accent-color: #f8a5c2;     /* Sabrina Pastel Pink */
-  --border-color: #f3a683;     /* Warm Peach Border */
-  --tile-correct: #f8a5c2;     /* Pink for correct tiles */
-  --tile-present: #f7d794;     /* Butter Yellow for present tiles */
-  --tile-absent: #e0d0d0;      /* Muted Pink-Gray for incorrect tiles */
+  --color-correct: #6aaa64;    
+  --color-present: #c9b458;    
+  --color-absent: #787c7e;     
+  --color-seed: #e4d795;       /* Soft gold for placed seed letters */
+  --color-border: #d3d6da;     
+  --color-border-focus: #878a8c;
+  --bg: #ffffff;
+  --text: #1a1a1a;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 !important; 
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Fredoka', cursive, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  min-height: 100vh;
 }
 
-/* Custom tile styling */
-.tile {
-  border: 2px solid var(--border-color);
-  font-weight: bold;
-  border-radius: 8px;
+/* MARLBORO-STYLE SERIF HEADER */
+header {
+  width: 100%;
+  max-width: 330px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
-.tile[data-state="correct"] {
-  background-color: var(--tile-correct);
-  color: #fff;
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #c92a2a; /* Deep elegant red for that aesthetic, or change to black */
 }
 
-.tile[data-state="present"] {
-  background-color: var(--tile-present);
-  color: #3d2314;
+/* SEED BANK TRAY */
+.seed-bank {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  padding: 10px;
+  background: transparent;
+  min-height: 62px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 330px;
 }
 
-.tile[data-state="absent"] {
-  background-color: var(--tile-absent);
-  color: #fff;
+.draggable-letter {
+  width: 46px;
+  height: 46px;
+  border: 2px solid var(--color-border-focus);
+  background: var(--color-absent);
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  text-transform: uppercase;
+  transition: transform 0.1s ease;
+}
+
+.draggable-letter.used {
+  opacity: 0.2;
+  pointer-events: none;
+  border-style: dashed;
+}
+
+.draggable-letter:active {
+  transform: scale(0.9);
+}
+
+/* THE GRID */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 210px; 
+  margin: 0 auto 2rem auto;
+}
+
+.cell {
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--color-border);
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  text-align: center;
+  caret-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.1s ease;
+}
+
+.cell.active-focus {
+  border-bottom: 4px solid var(--text);
+}
+
+.cell.is-seed {
+  background-color: var(--color-seed);
+  color: var(--text);
+  border-color: var(--color-present);
+}
+
+.cell.invisible-space {
+  border: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+button {
+  background: var(--color-border-focus);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+button:hover { background: var(--text); }
+
+/* MODALS & OVERLAYS */
+.overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 100;
+}
+.modal {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: var(--bg);
+  border: 2px solid var(--text);
+  padding: 2rem;
+  width: 90%; max-width: 340px;
+  z-index: 101;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.modal h2 { margin-bottom: 1rem; font-family: 'Playfair Display', serif; }
+.modal p { margin-bottom: 1rem; line-height: 1.5; font-size: 0.95rem; }
+.hidden { display: none !important; }
+
+/* WIN ANIMATION CASCADE */
+@keyframes flipToGreen {
+  0% { transform: rotateX(0deg); background: var(--bg); }
+  49% { background: var(--bg); color: var(--text); }
+  50% { transform: rotateX(90deg); background: var(--color-correct); color: white; border-color: var(--color-correct); }
+  100% { transform: rotateX(0deg); background: var(--color-correct); color: white; border-color: var(--color-correct); }
+}
+.cell.win-flip {
+  animation: flipToGreen 0.6s ease forwards;
+}
+
+
+/* Sabrina Theme Floating Graphics (Auro only) */
+.sabrina-graphic {
+  position: fixed;
+  z-index: -1; 
+  pointer-events: none; /* Prevents them from blocking grid clicks */
+  opacity: 0.85; /* Makes them blend slightly into the background */
+  width: 150px; /* Adjust this size if they are too big/small */
+}
+
+.sabrina-top-left {
+  top: 20px;
+  left: 20px;
+  transform: rotate(-10deg);
+}
+
+.sabrina-bottom-right {
+  bottom: 20px;
+  right: 20px;
+  transform: rotate(15deg);
 }
