@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadGameData();
   setupTutorial();
   initializeInteractions();
-  applyAuroTheme();
+
 });
 
 async function getTargetWord(sheetData) {
